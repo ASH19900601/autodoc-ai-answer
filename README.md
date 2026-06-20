@@ -13,13 +13,7 @@
 读取文档中的题目，调用任意 AI 模型生成答案，并**原地写回原文件、保持原始排版**。
 支持 Word(DOCX)、PDF、Excel(XLSX)、PowerPoint(PPTX)、TXT、Markdown。
 
-## 设计原则：CLI == GUI
 
-- 所有业务逻辑只存在于 `autodoc/core/`（唯一允许导入文档库的层）。
-- `autodoc/cli.py`（命令行）和 `autodoc/api.py`（HTTP + 网页）都只调用 `core`，
-  且 **不导入任何文档库**（有自动化测试强制校验）。
-- 网页每个操作都会返回与之**等价的 CLI 命令**（`equivalent_cli`），并由 Playwright
-  在桌面 + 移动端视口自动验收。因此 GUI 完全是 CLI 的等价延伸，无需人工验收。
 
 ## 架构
 
@@ -72,14 +66,7 @@ docker compose up --build
 # 浏览器访问 http://localhost:8000
 ```
 
-> Windows 本机说明：已通过 winget 安装 Docker Desktop 4.78.0、docker CLI v29.5.3，
-> 并启用了 `Microsoft-Windows-Subsystem-Linux` 与 `VirtualMachinePlatform` 两项功能。
-> 这两项功能**需要重启一次系统**才能生效；重启后 Docker Desktop 才能用 WSL2 后端启动引擎。
-> 因此 Docker 构建/运行这一环**尚未在本机实跑验证**。重启后执行上面的命令即可验证。
 
-## MCP server（可选，独立模块，不影响主程序）
-
-让 Claude Code 等 MCP 客户端直接复用本项目的文档工具：
 
 ```bash
 pip install -e ".[mcp]"     # 需要 Python >= 3.10
@@ -148,9 +135,7 @@ pytest -q
 - **GUI（浏览器级）**：Playwright 在桌面(1280×900)与移动(390×844)两种视口驱动真实网页，
   完成上传→解析→写入→下载，校验答案写入且标题等原内容保留。
 
-当前状态：**53 项测试通过 + 1 项跳过**（跳过项为需 Python≥3.10 的 MCP 构建测试）。
-真实 GCSE 风格考卷（含填空、简答、True/False 打勾表格）已用 DeepSeek 实测，自动判定为
-worksheet 模式并全部正确作答、原地保格式写回。
+
 
 ## 许可证 / License
 
