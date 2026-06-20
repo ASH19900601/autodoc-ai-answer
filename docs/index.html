@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>autodoc · AI 文档答题 / AI Document Auto-Answer</title>
+<meta name="description" content="读取文档题目，调用任意 AI 生成答案，原地写回并保持原排版。支持 Word/PDF/Excel/PPT/TXT/Markdown。CLI=GUI，可 Docker 部署。" />
+<style>
+  :root{
+    --bg:#0b1020; --bg2:#121a33; --card:#16203c; --fg:#eef2ff; --muted:#9fb0d6;
+    --accent:#5b8cff; --accent2:#22d3ee; --border:#26335c; --ok:#34d399;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
+    color:var(--fg);background:linear-gradient(180deg,var(--bg),var(--bg2));line-height:1.65}
+  a{color:var(--accent2);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:920px;margin:0 auto;padding:0 20px}
+  header.hero{padding:72px 0 48px;text-align:center}
+  .badge{display:inline-block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--accent2);border:1px solid var(--border);border-radius:999px;padding:5px 14px;margin-bottom:20px}
+  h1{font-size:clamp(30px,6vw,52px);margin:.2em 0;line-height:1.1}
+  h1 .grad{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;
+    background-clip:text;color:transparent}
+  .tagline{font-size:clamp(16px,2.4vw,20px);color:var(--muted);max-width:680px;margin:14px auto 0}
+  .cta{margin-top:30px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .btn{display:inline-block;padding:12px 22px;border-radius:10px;font-weight:600;border:1px solid var(--border)}
+  .btn.primary{background:linear-gradient(90deg,var(--accent),#3b6fe0);color:#fff;border:0}
+  .btn.ghost{background:transparent;color:var(--fg)}
+  section{padding:36px 0;border-top:1px solid var(--border)}
+  h2{font-size:24px;margin:0 0 18px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px}
+  .card h3{margin:0 0 8px;font-size:17px}
+  .card p{margin:0;color:var(--muted);font-size:14px}
+  pre{background:#0a0f22;border:1px solid var(--border);border-radius:12px;padding:16px;overflow:auto;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;color:#d7e3ff}
+  .pill{display:inline-block;background:#0a0f22;border:1px solid var(--border);border-radius:8px;
+    padding:4px 10px;margin:4px 6px 0 0;font-size:13px;color:#cfe0ff}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--border)}
+  th{color:var(--accent2);font-weight:600}
+  .ok{color:var(--ok)}
+  footer{padding:40px 0 60px;color:var(--muted);font-size:13px;text-align:center;border-top:1px solid var(--border)}
+  .note{background:rgba(91,140,255,.08);border:1px solid var(--border);border-radius:12px;padding:14px 16px;
+    color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <span class="badge">CLI = GUI · 原地保格式 · 任意模型</span>
+    <h1><span class="grad">autodoc</span><br/>AI 文档答题</h1>
+    <p class="tagline">读取文档里的题目，调用任意 AI 模型生成答案，并**原地写回原文件、保持原始排版**。
+      支持 Word、PDF、Excel、PowerPoint、TXT、Markdown。</p>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/ASH19900601/autodoc-ai-answer">在 GitHub 查看源码</a>
+      <a class="btn ghost" href="#quickstart">快速开始</a>
+    </div>
+  </header>
+
+  <section>
+    <h2>它能做什么</h2>
+    <div class="grid">
+      <div class="card"><h3>📝 原地保格式作答</h3><p>编辑原文件本身，不新建文档。样式、页边距、编号、表格全部保留，只把答案写进空白处或答题单元格。</p></div>
+      <div class="card"><h3>🤖 接入任意 AI</h3><p>对接任意 OpenAI 兼容端点（OpenAI / DeepSeek / 代理 / 本地模型），配 base_url + model + key 即可。</p></div>
+      <div class="card"><h3>🧠 自动判定题型</h3><p>auto 模式自动识别：编号填空走 simple，考卷/表格走 worksheet（LLM 结构感知），丢进去就答。</p></div>
+      <div class="card"><h3>🖥️ CLI = GUI</h3><p>核心逻辑只有一份，命令行与响应式网页完全等价；网页每个动作都显示等价 CLI 命令。</p></div>
+      <div class="card"><h3>📄 多格式</h3><p>DOCX / PDF（表单+文本）/ XLSX / PPTX / TXT / Markdown，原地编辑、保持排版。</p></div>
+      <div class="card"><h3>🐳 一键部署</h3><p>Docker Compose 一条命令起服务，跨平台、不依赖 Windows；桌面与手机浏览器同一套响应式界面。</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>支持格式</h2>
+    <table>
+      <tr><th>格式</th><th>写回策略</th><th>格式保持</th></tr>
+      <tr><td>DOCX</td><td>替换空白 / 段尾追加 / 表格打勾 / 写入空白段落</td><td class="ok">样式·节属性·编号语义保留</td></tr>
+      <tr><td>XLSX</td><td>替换单元格空白 / 写入右侧单元格</td><td class="ok">字体·列宽保留</td></tr>
+      <tr><td>PPTX</td><td>替换空白 / 段尾追加</td><td class="ok">版式·样式保留</td></tr>
+      <tr><td>TXT / MD</td><td>替换空白 / 行尾追加</td><td class="ok">其余行字节不变</td></tr>
+      <tr><td>PDF（表单）</td><td>填充 AcroForm 字段</td><td class="ok">页面·几何不变</td></tr>
+      <tr><td>PDF（文本）</td><td>题目旁插入答案（内置 CJK 字体）</td><td class="ok">页数·几何·原文不变</td></tr>
+    </table>
+    <p style="color:var(--muted);font-size:14px;margin-top:12px">不支持任意扫描件 / 复杂排版 PDF 的真正重排编辑——会如实报告而非破坏排版。</p>
+  </section>
+
+  <section id="quickstart">
+    <h2>快速开始</h2>
+    <p style="color:var(--muted)">前置：已安装 Docker，或 Python 3.8+。</p>
+    <h3 style="font-size:16px">Docker 一键起（推荐）</h3>
+    <pre><code>git clone https://github.com/ASH19900601/autodoc-ai-answer.git
+cd autodoc-ai-answer
+docker compose up --build
+# 浏览器打开 http://localhost:8000</code></pre>
+    <h3 style="font-size:16px">命令行</h3>
+    <pre><code># 安装
+pip install -e .
+
+# 解析题目
+autodoc parse quiz.docx --json
+
+# 自动答题并原地写回（默认 auto 自动判定题型/版式）
+autodoc answer quiz.docx \
+  --base-url https://api.deepseek.com \
+  --model deepseek-v4-flash \
+  --api-key sk-xxx</code></pre>
+  </section>
+
+  <section>
+    <h2>架构与技术</h2>
+    <div>
+      <span class="pill">Python</span><span class="pill">FastAPI</span>
+      <span class="pill">python-docx</span><span class="pill">PyMuPDF</span>
+      <span class="pill">openpyxl</span><span class="pill">python-pptx</span>
+      <span class="pill">Typer CLI</span><span class="pill">Docker</span>
+      <span class="pill">Playwright（验收）</span>
+    </div>
+    <div class="note" style="margin-top:18px">
+      客户端–服务端架构：Python 后端做解析与原地编辑（core 是唯一业务逻辑层），
+      CLI、HTTP API、响应式网页都只调用同一份 core。
+      <strong>CLI=GUI</strong> 由测试自动强制：HTTP 层产出与 CLI 子进程字节级一致，
+      Playwright 在桌面/移动端两种视口自动验收，无需人工测试。
+    </div>
+  </section>
+
+  <footer>
+    <p>MIT License © 2026 ASH19900601 ·
+      <a href="https://github.com/ASH19900601/autodoc-ai-answer">GitHub 仓库</a></p>
+    <p>仅供学习与合法文档自动化用途。</p>
+  </footer>
+</div>
+</body>
+</html>

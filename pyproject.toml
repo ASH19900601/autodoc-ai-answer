@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autodoc"
+version = "0.1.0"
+description = "AI document Q&A automation: read questions from a document and write answers back in-place, preserving original formatting."
+requires-python = ">=3.8"
+dependencies = [
+    "typer>=0.9,<0.13",
+    "click>=8.0,<8.2",
+    "fastapi>=0.110,<0.116",
+    "uvicorn>=0.23,<0.31",
+    "python-multipart>=0.0.6",
+    "pydantic>=2.5,<3",
+    "httpx>=0.24,<0.28",
+    "python-docx>=1.1.0",
+    "openpyxl>=3.1.0",
+    "python-pptx>=0.6.23",
+    "pymupdf>=1.23.0,<1.24.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "pytest-asyncio>=0.21",
+    "playwright>=1.40",
+]
+mcp = [
+    "mcp>=1.2",
+]
+
+[project.scripts]
+autodoc = "autodoc.cli:main"
+autodoc-mcp = "autodoc.mcp_server:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["autodoc*"]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+autodoc = ["web/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+filterwarnings = ["ignore::DeprecationWarning"]

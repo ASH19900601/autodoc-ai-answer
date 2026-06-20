@@ -1,0 +1,13 @@
+services:
+  autodoc:
+    build: .
+    image: autodoc:latest
+    ports:
+      - "8000:8000"
+    environment:
+      # Point at any OpenAI-compatible endpoint (OpenAI, a bridge, a proxy, ...)
+      # Leave empty to configure per-request from the web UI instead.
+      - ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-}
+      - ANTHROPIC_AUTH_TOKEN=${ANTHROPIC_AUTH_TOKEN:-}
+      - AUTODOC_MODEL=${AUTODOC_MODEL:-}
+    restart: unless-stopped

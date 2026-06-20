@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "autodoc": {
+      "command": "autodoc-mcp",
+      "args": [],
+      "env": {}
+    }
+  }
+}
