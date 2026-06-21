@@ -19,6 +19,7 @@ from .models import DocFormat, EditResult
 _LETTERED_RE = re.compile(r"^\s*\(?[a-zA-Z]\)\s")
 _MARKS_RE = re.compile(r"\[\d+\]\s*$")
 _OPTION_RE = re.compile(r"^\s*[A-Da-d][.、)）]\s*\S")
+_BLANK_RE = re.compile(r"[_＿]{2,}")
 
 
 def choose_mode(path: str) -> str:
@@ -39,6 +40,7 @@ def choose_mode(path: str) -> str:
     lettered = sum(1 for t in texts if _LETTERED_RE.match(t))
     marks = sum(1 for t in texts if _MARKS_RE.search(t))
     options = sum(1 for t in texts if _OPTION_RE.match(t))
+    max_blanks = max((len(_BLANK_RE.findall(t)) for t in texts), default=0)
 
     simple_qs = docx_backend.parse_questions(path)
     simple_fill = sum(1 for q in simple_qs if q.qtype.value == "fill_blank")
@@ -48,6 +50,10 @@ def choose_mode(path: str) -> str:
         return "worksheet"
     # Lettered sub-parts or mark annotations => worksheet.
     if lettered >= 2 or marks >= 2:
+        return "worksheet"
+    # Cloze: a single paragraph with 2+ blanks needs per-blank filling
+    # (simple mode only fills the first blank of a question).
+    if max_blanks >= 2:
         return "worksheet"
     # Clear numbered fill-in-the-blank worksheet with no worksheet signals.
     if simple_fill >= 1 and lettered == 0 and marks == 0:

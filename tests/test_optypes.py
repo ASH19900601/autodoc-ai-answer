@@ -78,3 +78,19 @@ def test_choice_doc_routes_to_worksheet(tmp_path: Path):
     p = tmp_path / "choice.docx"
     d.save(str(p))
     assert choose_mode(str(p)) == "worksheet"
+
+
+def test_cloze_multiblank_routes_to_worksheet(tmp_path: Path):
+    d = docx.Document()
+    d.add_paragraph("1. 中国的首都是____，水的化学式是____。")
+    p = tmp_path / "cloze.docx"
+    d.save(str(p))
+    assert choose_mode(str(p)) == "worksheet"
+
+
+def test_single_blank_stays_simple(tmp_path: Path):
+    d = docx.Document()
+    d.add_paragraph("1. 中国的首都是____。")
+    p = tmp_path / "single.docx"
+    d.save(str(p))
+    assert choose_mode(str(p)) == "simple"
