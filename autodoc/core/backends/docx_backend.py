@@ -184,19 +184,42 @@ def _set_paragraph_text(paragraph, text: str) -> None:
         paragraph.add_run(text)
 
 
+def _fill_nth_blank(paragraph, occurrence: int, text: str) -> bool:
+    """Replace the ``occurrence``-th blank (run of ``_``/``＿``) in place.
+
+    Keeps the rest of the paragraph text and run formatting intact. Returns
+    True if a blank was found and filled. ``occurrence`` is 1-based.
+    """
+    full = _para_text(paragraph)
+    blanks = list(_BLANK_RE.finditer(full))
+    if not blanks or occurrence < 1 or occurrence > len(blanks):
+        return False
+    m = blanks[occurrence - 1]
+    _replace_range(paragraph, m.start(), m.end(), text)
+    return True
+
+
 def apply_ops(path: str, ops: list, output: str = None) -> EditResult:
     """Apply worksheet edit operations in place.
 
     Supported ops:
-      {"op": "set_paragraph", "index": int, "text": str}
+      {"op": "set_paragraph",    "index": int, "text": str}
       {"op": "append_paragraph", "index": int, "text": str}
-      {"op": "set_cell", "table": int, "row": int, "col": int, "text": str}
+      {"op": "fill_blank",       "index": int, "text": str, "occurrence": int=1}
+      {"op": "set_cell",  "table": int, "row": int, "col": int, "text": str}
+      {"op": "append_cell","table": int, "row": int, "col": int, "text": str}
     """
     document = docx.Document(path)
     paragraphs = document.paragraphs
     tables = document.tables
     written = 0
-    for op in ops:
+    # Apply fill_blank last and, within the same paragraph, from the highest
+    # occurrence to the lowest, so filling one blank never shifts the
+    # numbering of the others (occurrence refers to the ORIGINAL paragraph).
+    fill_ops = [o for o in ops if o.get("op") == "fill_blank"]
+    other_ops = [o for o in ops if o.get("op") != "fill_blank"]
+
+    for op in other_ops:
         kind = op.get("op")
         try:
             if kind == "set_paragraph":
@@ -207,11 +230,25 @@ def apply_ops(path: str, ops: list, output: str = None) -> EditResult:
                 written += 1
             elif kind == "set_cell":
                 cell = tables[op["table"]].rows[op["row"]].cells[op["col"]]
-                para = cell.paragraphs[0]
-                _set_paragraph_text(para, str(op["text"]))
+                _set_paragraph_text(cell.paragraphs[0], str(op["text"]))
                 written += 1
-        except (IndexError, KeyError):
+            elif kind == "append_cell":
+                cell = tables[op["table"]].rows[op["row"]].cells[op["col"]]
+                _append_answer(cell.paragraphs[0], str(op["text"]))
+                written += 1
+        except (IndexError, KeyError, ValueError):
             continue
+
+    for op in sorted(
+        fill_ops, key=lambda o: int(o.get("occurrence", 1)), reverse=True
+    ):
+        try:
+            occ = int(op.get("occurrence", 1))
+            if _fill_nth_blank(paragraphs[op["index"]], occ, str(op["text"])):
+                written += 1
+        except (IndexError, KeyError, ValueError):
+            continue
+
     target = output or path
     document.save(target)
     return EditResult(
