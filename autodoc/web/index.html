@@ -36,6 +36,13 @@
     <span class="ver">支持格式：<span id="formats" data-testid="formats">…</span></span>
   </header>
   <main>
+    <div class="card" id="auth-card" data-testid="auth-card" style="display:none;">
+      <h2>0. 访问令牌</h2>
+      <label>该服务已启用访问保护，请输入访问令牌（Access Token）</label>
+      <input type="password" id="token" data-testid="token" placeholder="访问令牌" />
+      <p class="muted">令牌仅保存在本浏览器（localStorage），随请求以请求头发送。</p>
+    </div>
+
     <div class="card">
       <h2>1. 选择文档</h2>
       <input type="file" id="file" data-testid="file" accept=".docx,.pdf,.xlsx,.pptx,.txt,.md,.markdown" />

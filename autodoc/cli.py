@@ -120,13 +120,16 @@ def answer(
 
 @app.command()
 def serve(
-    host: str = typer.Option("127.0.0.1", "--host"),
-    port: int = typer.Option(8000, "--port"),
+    host: str = typer.Option("0.0.0.0", "--host"),
+    port: int = typer.Option(0, "--port", help="Port; 0 means use $PORT env or 8000."),
 ) -> None:
     """Run the HTTP API + responsive web UI."""
+    import os
+
     import uvicorn
 
-    uvicorn.run("autodoc.api:app", host=host, port=port, log_level="info")
+    resolved_port = port or int(os.environ.get("PORT", "8000"))
+    uvicorn.run("autodoc.api:app", host=host, port=resolved_port, log_level="info")
 
 
 def main() -> None:

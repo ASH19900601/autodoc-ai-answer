@@ -14,7 +14,10 @@ COPY autodoc ./autodoc
 
 RUN pip install --no-cache-dir .
 
-EXPOSE 8000
+EXPOSE 7860
 
-# The web UI is a thin layer over the CLI; the container simply runs the CLI.
-CMD ["autodoc", "serve", "--host", "0.0.0.0", "--port", "8000"]
+# HF Spaces / Render / Cloud Run inject the listen port. Default to 7860
+# (Hugging Face Spaces default). The web UI is a thin layer over the CLI;
+# the container simply runs the CLI, which reads $PORT.
+ENV PORT=7860
+CMD ["sh", "-c", "autodoc serve --host 0.0.0.0 --port ${PORT}"]

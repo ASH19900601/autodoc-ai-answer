@@ -6,6 +6,20 @@ async function loadMeta() {
   document.getElementById('version').textContent = v.version;
   const f = await (await fetch('/api/formats')).json();
   document.getElementById('formats').textContent = f.formats.join(' ');
+  if (v.auth_required) {
+    document.getElementById('auth-card').style.display = '';
+    const saved = localStorage.getItem('autodoc_token');
+    if (saved) document.getElementById('token').value = saved;
+    document.getElementById('token').addEventListener('input', (e) => {
+      localStorage.setItem('autodoc_token', e.target.value);
+    });
+  }
+}
+
+function authHeaders() {
+  const el = document.getElementById('token');
+  const t = el ? el.value.trim() : '';
+  return t ? { 'X-Autodoc-Token': t } : {};
 }
 
 function fileInput() { return document.getElementById('file'); }
@@ -31,7 +45,7 @@ async function downloadFromResponse(resp, fallbackName) {
 document.getElementById('btn-parse').addEventListener('click', async () => {
   const f = requireFile(); if (!f) return;
   const fd = new FormData(); fd.append('file', f);
-  const resp = await fetch('/api/parse', { method: 'POST', body: fd });
+  const resp = await fetch('/api/parse', { method: 'POST', body: fd, headers: authHeaders() });
   const data = await resp.json();
   const ul = document.getElementById('questions');
   ul.innerHTML = '';
@@ -48,7 +62,7 @@ document.getElementById('btn-edit').addEventListener('click', async () => {
   const fd = new FormData();
   fd.append('file', f);
   fd.append('answers', document.getElementById('answers').value);
-  const resp = await fetch('/api/edit', { method: 'POST', body: fd });
+  const resp = await fetch('/api/edit', { method: 'POST', body: fd, headers: authHeaders() });
   if (!resp.ok) { alert('编辑失败: ' + resp.status); return; }
   document.getElementById('cli-edit').textContent =
     (resp.headers.get('X-Equivalent-Cli') || '') +
@@ -64,7 +78,7 @@ document.getElementById('btn-answer').addEventListener('click', async () => {
   fd.append('base_url', document.getElementById('base_url').value);
   fd.append('api_key', document.getElementById('api_key').value);
   fd.append('mode', document.getElementById('mode').value);
-  const resp = await fetch('/api/answer', { method: 'POST', body: fd });
+  const resp = await fetch('/api/answer', { method: 'POST', body: fd, headers: authHeaders() });
   if (!resp.ok) { alert('自动答题失败: ' + resp.status); return; }
   document.getElementById('cli-answer').textContent =
     (resp.headers.get('X-Equivalent-Cli') || '') +

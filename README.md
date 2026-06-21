@@ -1,3 +1,14 @@
+---
+title: Autodoc AI Answer
+emoji: 📝
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 7860
+pinned: false
+license: mit
+---
+
 # autodoc · AI 文档答题 / AI Document Auto-Answer
 
 > Read questions from a document, let any AI answer them, and write the answers
