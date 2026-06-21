@@ -21,6 +21,9 @@ license: mit
 
 📄 项目主页 / Landing page: <https://ash19900601.github.io/autodoc-ai-answer/>
 
+🚀 在线体验 / Live demo: <https://ash19900601-autodoc-ai-answer.hf.space>
+（内置测试模型，打开即用；也可在页面填入你自己的 OpenAI 兼容接口）
+
 读取文档中的题目，调用任意 AI 模型生成答案，并**原地写回原文件、保持原始排版**。
 支持 Word(DOCX)、PDF、Excel(XLSX)、PowerPoint(PPTX)、TXT、Markdown。
 

@@ -5,4 +5,4 @@ preserving the original formatting. CLI is the single source of truth;
 the HTTP API and web UI are thin layers that call the same core.
 """
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"

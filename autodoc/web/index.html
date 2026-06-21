@@ -69,13 +69,15 @@
     </div>
 
     <div class="card">
-      <h2>3b. 自动答题（调用任意 AI 模型）</h2>
+      <h2>3b. 自动答题（调用 AI 模型）</h2>
+      <p class="muted">💡 直接点“自动答题”即可使用<strong>内置测试模型（DeepSeek）</strong>，无需填任何东西。
+        想用自己的模型，填写下面的 Base URL / Model / API Key 即可（OpenAI 兼容接口）。</p>
       <div class="row">
-        <div><label>Base URL</label><input type="text" id="base_url" data-testid="base_url" placeholder="https://api.openai.com/v1" /></div>
-        <div><label>Model</label><input type="text" id="model" data-testid="model" placeholder="gpt-4o-mini" /></div>
+        <div><label>Base URL（可选）</label><input type="text" id="base_url" data-testid="base_url" placeholder="留空=内置测试模型" /></div>
+        <div><label>Model（可选）</label><input type="text" id="model" data-testid="model" placeholder="留空=内置测试模型" /></div>
       </div>
-      <label>API Key</label>
-      <input type="text" id="api_key" data-testid="api_key" placeholder="sk-..." />
+      <label>API Key（可选）</label>
+      <input type="text" id="api_key" data-testid="api_key" placeholder="留空=用内置测试 Key；或填 sk-..." />
       <label>模式</label>
       <select id="mode" data-testid="mode">
         <option value="auto">auto（自动判定，推荐）</option>
