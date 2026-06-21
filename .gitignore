@@ -8,3 +8,5 @@ dist/
 tests/_tmp/
 node_modules/
 .DS_Store
+# transient output files (e.g. debugging/verification scratch at repo root)
+/*.txt
